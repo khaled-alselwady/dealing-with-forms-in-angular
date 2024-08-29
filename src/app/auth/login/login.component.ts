@@ -1,10 +1,19 @@
 import { Component } from '@angular/core';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+
+function mustContainQuestionMark(control: AbstractControl) {
+  if (control.value.includes('?')) {
+    return null;
+  }
+
+  return { doesNotContainQuestionMark: true };
+}
 
 @Component({
   selector: 'app-login',
@@ -19,24 +28,36 @@ export class LoginComponent {
       validators: [Validators.email, Validators.required],
     }),
     password: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(6)],
+      validators: [
+        Validators.required,
+        Validators.minLength(6),
+        mustContainQuestionMark,
+      ],
     }),
   });
 
-  private isInvalidControl(control: 'email' | 'password') {
-    return (
-      this.form.controls[control].touched &&
-      this.form.controls[control].dirty &&
-      this.form.controls[control].invalid
-    );
+  private isInvalidControl(controlName: 'email' | 'password') {
+    const control = this.form.controls[controlName];
+    return control.touched && control.dirty && control.invalid;
+  }
+
+  private hasError(control: AbstractControl, errorKey: string): boolean {
+    return control.hasError(errorKey) && control.touched;
   }
 
   get isEmailInvalid() {
     return this.isInvalidControl('email');
   }
 
-  get isPasswordInvalid() {
-    return this.isInvalidControl('password');
+  get isPasswordLengthInvalid() {
+    return this.hasError(this.form.controls['password'], 'minlength');
+  }
+
+  get doesNotPasswordContainQuestionMark() {
+    return this.hasError(
+      this.form.controls['password'],
+      'doesNotContainQuestionMark'
+    );
   }
 
   onSubmit() {
