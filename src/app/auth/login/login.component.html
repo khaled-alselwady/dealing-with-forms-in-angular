@@ -1,4 +1,4 @@
-<form [formGroup]="form">
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
   <h2>Login</h2>
 
   <div class="control-row">
@@ -14,4 +14,10 @@
 
     <button class="button">Login</button>
   </div>
+
+  @if (isEmailInvalid) {
+  <p class="control-error">Please enter a valid email address</p>
+  } @if (isPasswordInvalid) {
+  <p class="control-error">Password must be at least 6 characters long</p>
+  }
 </form>
