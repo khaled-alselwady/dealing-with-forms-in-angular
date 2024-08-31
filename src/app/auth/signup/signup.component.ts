@@ -4,6 +4,7 @@ import {
   Validators,
   ReactiveFormsModule,
   FormControl,
+  FormArray,
 } from '@angular/forms';
 import type { Role } from './signup.model';
 
@@ -56,6 +57,12 @@ export class SignupComponent implements OnInit {
       role: new FormControl<Role>('student', {
         validators: [Validators.required],
       }),
+
+      source: new FormArray([
+        new FormControl(false),
+        new FormControl(false),
+        new FormControl(false),
+      ]),
 
       agree: new FormControl(false, { validators: [Validators.required] }),
     });
