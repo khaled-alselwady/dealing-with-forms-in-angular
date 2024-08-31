@@ -5,6 +5,9 @@
   <div class="control">
     <label for="email">Email</label>
     <input id="email" type="email" name="email" formControlName="email" />
+    @if (isEmailValid) {
+    <app-error-message errorMessage="* Email is not valid" />
+    }
   </div>
 
   <div class="control-row" formGroupName="passwords">

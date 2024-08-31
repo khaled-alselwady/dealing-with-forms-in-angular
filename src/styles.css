@@ -113,11 +113,12 @@ fieldset {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  color: #ffca99;
-  height: 0.5rem;
+  color: #e95415;
   padding: 0.25rem 0 0 0;
   height: 1.5rem;
   margin-bottom: 1rem;
+  margin-top: 0;
+  padding-top: 0.4rem;
 }
 
 .control-error p {

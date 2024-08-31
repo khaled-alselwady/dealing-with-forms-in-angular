@@ -7,11 +7,12 @@ import {
   FormArray,
 } from '@angular/forms';
 import type { Role } from './signup.model';
+import { ErrorMessageComponent } from "../error-message/error-message.component";
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ErrorMessageComponent],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
@@ -20,6 +21,11 @@ export class SignupComponent implements OnInit {
 
   ngOnInit() {
     this.setFormState();
+  }
+
+  get isEmailValid() {
+    const emailControl = this.form.controls['email'];
+    return emailControl.touched && emailControl.invalid;
   }
 
   setFormState() {
