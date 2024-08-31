@@ -10,6 +10,29 @@ import {
 import type { Role } from './signup.model';
 import { ErrorMessageComponent } from '../error-message/error-message.component';
 
+function equalValues(controlName1: string, controlName2: string) {
+  return (control: AbstractControl) => {
+    const val1 = control.get(controlName1)?.value;
+    const val2 = control.get(controlName2)?.value;
+
+    if (val1 === val2) {
+      return null;
+    } else {
+      return { notEqualValues: true };
+    }
+  };
+}
+
+function selectAtLeastOneSource(control: AbstractControl) {
+  if (control instanceof FormArray) {
+    const atLeastSelected = control.controls.some((ctrl) => ctrl.value);
+
+    return atLeastSelected ? null : { notSelectAtLeastOneSource: true };
+  }
+
+  return { notSelectAtLeastOneSource: true };
+}
+
 @Component({
   selector: 'app-signup',
   standalone: true,
@@ -24,25 +47,33 @@ export class SignupComponent implements OnInit {
     this.setFormState();
   }
 
+  private getPasswordsControl() {
+    return this.form.controls['passwords'];
+  }
+
   get isEmailInvalid() {
     const emailControl = this.form.controls['email'];
     return emailControl.touched && emailControl.invalid;
   }
 
   get isPasswordLengthInvalid() {
-    const passwordsControl: FormGroup = this.form.controls[
-      'passwords'
-    ] as FormGroup;
-    const passwordControl = passwordsControl.controls['password'];
-    return passwordControl.touched && passwordControl.invalid;
+    const passwordControl = this.getPasswordsControl().get('password');
+    return passwordControl?.touched && passwordControl?.invalid;
+  }
+
+  get isConfirmPasswordMismatch() {
+    const passwordsControl = this.getPasswordsControl();
+    const confirmPasswordControl = passwordsControl.get('confirmPassword');
+    const passwordControl = passwordsControl.get('password');
+    return (
+      (confirmPasswordControl?.touched || passwordControl?.touched) &&
+      passwordControl?.value !== confirmPasswordControl?.value
+    );
   }
 
   isNameInvalid(nameToCheck: 'firstName' | 'lastName') {
-    const fullNameControl: FormGroup = this.form.controls[
-      'fullName'
-    ] as FormGroup;
-    const nameControl = fullNameControl.controls[nameToCheck];
-    return nameControl.touched && nameControl.invalid;
+    const nameControl = this.form.controls['fullName'].get(nameToCheck);
+    return nameControl?.touched && nameControl?.invalid;
   }
 
   get isFirstNameInvalid() {
@@ -59,15 +90,20 @@ export class SignupComponent implements OnInit {
         validators: [Validators.required, Validators.email],
       }),
 
-      passwords: new FormGroup({
-        password: new FormControl('', {
-          validators: [Validators.required, Validators.minLength(6)],
-        }),
+      passwords: new FormGroup(
+        {
+          password: new FormControl('', {
+            validators: [Validators.required, Validators.minLength(6)],
+          }),
 
-        confirmPassword: new FormControl('', {
-          validators: [Validators.required],
-        }),
-      }),
+          confirmPassword: new FormControl('', {
+            validators: [Validators.required],
+          }),
+        },
+        {
+          validators: [equalValues('password', 'confirmPassword')],
+        }
+      ),
 
       fullName: new FormGroup({
         firstName: new FormControl('', { validators: [Validators.required] }),
@@ -89,13 +125,18 @@ export class SignupComponent implements OnInit {
         validators: [Validators.required],
       }),
 
-      source: new FormArray([
-        new FormControl(false),
-        new FormControl(false),
-        new FormControl(false),
-      ]),
+      source: new FormArray(
+        [
+          new FormControl(false),
+          new FormControl(false),
+          new FormControl(false),
+        ],
+        {
+          validators: [selectAtLeastOneSource],
+        }
+      ),
 
-      agree: new FormControl(false, { validators: [Validators.required] }),
+      agree: new FormControl(false, { validators: [Validators.requiredTrue] }),
     });
   }
 
