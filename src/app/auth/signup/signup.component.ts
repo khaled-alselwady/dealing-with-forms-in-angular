@@ -5,9 +5,10 @@ import {
   ReactiveFormsModule,
   FormControl,
   FormArray,
+  AbstractControl,
 } from '@angular/forms';
 import type { Role } from './signup.model';
-import { ErrorMessageComponent } from "../error-message/error-message.component";
+import { ErrorMessageComponent } from '../error-message/error-message.component';
 
 @Component({
   selector: 'app-signup',
@@ -23,9 +24,33 @@ export class SignupComponent implements OnInit {
     this.setFormState();
   }
 
-  get isEmailValid() {
+  get isEmailInvalid() {
     const emailControl = this.form.controls['email'];
     return emailControl.touched && emailControl.invalid;
+  }
+
+  get isPasswordLengthInvalid() {
+    const passwordsControl: FormGroup = this.form.controls[
+      'passwords'
+    ] as FormGroup;
+    const passwordControl = passwordsControl.controls['password'];
+    return passwordControl.touched && passwordControl.invalid;
+  }
+
+  isNameInvalid(nameToCheck: 'firstName' | 'lastName') {
+    const fullNameControl: FormGroup = this.form.controls[
+      'fullName'
+    ] as FormGroup;
+    const nameControl = fullNameControl.controls[nameToCheck];
+    return nameControl.touched && nameControl.invalid;
+  }
+
+  get isFirstNameInvalid() {
+    return this.isNameInvalid('firstName');
+  }
+
+  get isLastNameInvalid() {
+    return this.isNameInvalid('lastName');
   }
 
   setFormState() {
